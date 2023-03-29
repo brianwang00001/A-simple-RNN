@@ -1,5 +1,11 @@
 import numpy as np 
 
+def softmax(self, indata):
+        indata -= np.max(indata)
+        outdata = np.exp(indata)
+        outdata = outdata / np.sum(outdata)
+        return outdata
+
 class RNN:
 
     def __init__(self, hidden_size, seq_length, vocab_size, data_size, stoi, itos):
@@ -134,9 +140,3 @@ class RNN:
         result = ''.join(result_char)
         
         print(result)
-
-    def softmax(self, indata):
-        indata -= np.max(indata)
-        outdata = np.exp(indata)
-        outdata = outdata / np.sum(outdata)
-        return outdata
