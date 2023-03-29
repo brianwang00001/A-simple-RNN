@@ -1,6 +1,6 @@
 import numpy as np 
 
-def softmax(self, indata):
+def softmax(indata):
         indata -= np.max(indata)
         outdata = np.exp(indata)
         outdata = outdata / np.sum(outdata)
