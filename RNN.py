@@ -80,7 +80,7 @@ class RNN:
             xs[t][inputs[t]] = 1
             hs[t] = np.tanh(self.Wxh @ xs[t] + self.Whh @ hs[t-1] + self.bh)
             ys[t] = self.Why @ hs[t] + self.by
-            ps[t] = self.softmax(ys[t])
+            ps[t] = softmax(ys[t])
             loss += -np.log(ps[t][targets[t]]).item()
         self.loss = loss 
 
@@ -130,7 +130,7 @@ class RNN:
         for _ in range(samples):
             h = np.tanh(self.Wxh @ x + self.Whh @ h + self.bh)
             y = self.Why @ h + self.by
-            p = self.softmax(y)
+            p = softmax(y)
             idx = np.random.choice(range(self.vocab_size), p=p.ravel())
             result_idx.append(idx)
             x = np.zeros((self.vocab_size, 1))
