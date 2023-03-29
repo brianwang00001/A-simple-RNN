@@ -18,6 +18,7 @@ class RNN:
         self.hidden_size = hidden_size # size of hidden state vector
         self.seq_length = seq_length # max length to backprop 
         self.vocab_size = vocab_size # dimension of input and output vectors
+        print(f'One epoch equals {int(self.data_size/vocab_size)+1} iterations.')
 
         # initialise trainable parameters
         self.Wxh = np.random.randn(self.hidden_size, self.vocab_size) * 0.01
@@ -28,8 +29,11 @@ class RNN:
 
         # loss record
         self.loss = 0
+        self.loss_record = []
+        self.iter_record = []
+        self.iteration = 0
 
-    def train(self, data, total_iteration, lr, show_loss=True):
+    def train(self, data, total_iteration, lr, show_loss=True, show_loss_every=5000):
         # index for loading data
         load_idx = 0
         # previous hidden state
@@ -42,7 +46,7 @@ class RNN:
         self.mbh = np.zeros_like(self.bh)
         self.mby = np.zeros_like(self.by)
         # total iteration count 
-        iteration = 0
+        count = 0
 
         while True:
             # reset the loading index and hprev 
@@ -58,14 +62,22 @@ class RNN:
             hprev = self.train_one_loop(inputs, targets, hprev,lr=lr)
             
             # print loss
-            if show_loss == True and iteration % 10 == 0:
-                print(f'Iteration : {iteration} | Loss : {self.loss}')
+            if show_loss == True and self.iteration % show_loss_every == 0:
+                print(f'Iteration : {self.iteration} | Loss : {self.loss}')
+
+            # save the record of loss
+            if self.iteration % 10 == 0:
+                self.loss_record.append(self.loss)
+                self.iter_record.append(self.iteration)
 
             # update loading index and iteration counter 
             load_idx += self.seq_length
-            iteration += 1
+            count += 1
+            self.iteration += 1
 
-            if iteration > total_iteration:
+            if count > total_iteration:
+                print('-'*50)
+                print('Training completed.')
                 break 
 
     # [forward -> backward -> update] for one time 
@@ -82,7 +94,7 @@ class RNN:
             ys[t] = self.Why @ hs[t] + self.by
             ps[t] = softmax(ys[t])
             loss += -np.log(ps[t][targets[t]]).item()
-        self.loss = loss 
+        self.loss = loss / self.seq_length
 
         # backward pass
         # -----------------------------------------------------------------------------
